@@ -3,38 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { LevelCard } from "@/components/game/LevelCard";
 import { Level } from "@/types/game";
 
-const INITIAL_LEVELS: Level[] = [
-  {
-    id: 1,
-    name: "Başlangıç",
-    moves: 20,
-    goals: [
-      { type: 'red', count: 15 },
-      { type: 'blue', count: 15 },
-    ],
-    unlocked: true,
-  },
-  {
-    id: 2,
-    name: "Zorlu Seviye",
-    moves: 18,
-    goals: [
-      { type: 'green', count: 20 },
-      { type: 'yellow', count: 20 },
-    ],
-    unlocked: true,
-  },
-  {
-    id: 3,
-    name: "Usta Seviye",
-    moves: 15,
-    goals: [
-      { type: 'purple', count: 25 },
-      { type: 'orange', count: 25 },
-    ],
-    unlocked: true,
-  },
-];
+const INITIAL_LEVELS: Level[] = Array.from({ length: 25 }, (_, i) => ({
+  id: i + 1,
+  name: i < 5 ? "Kolay" : i < 10 ? "Orta" : i < 15 ? "Zor" : i < 20 ? "Çok Zor" : "Efsane",
+  moves: 25 - Math.floor(i * 0.7),
+  goals: [],
+  unlocked: true,
+}));
 
 export default function Index() {
   const navigate = useNavigate();
@@ -56,7 +31,7 @@ export default function Index() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           {levels.map((level) => (
             <LevelCard
               key={level.id}

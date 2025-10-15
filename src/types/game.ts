@@ -1,4 +1,5 @@
-export type GemType = 'red' | 'blue' | 'green' | 'yellow' | 'purple' | 'orange';
+export type GemType = 'red' | 'blue' | 'green' | 'yellow' | 'purple' | 'orange' | 'pink' | 'cyan' | 'lime' | 'magenta';
+export type PowerUpType = 'bomb' | 'horizontal' | 'vertical' | 'rainbow' | null;
 
 export interface Gem {
   id: string;
@@ -6,6 +7,8 @@ export interface Gem {
   row: number;
   col: number;
   matched?: boolean;
+  powerUp?: PowerUpType;
+  isNew?: boolean;
 }
 
 export interface Level {

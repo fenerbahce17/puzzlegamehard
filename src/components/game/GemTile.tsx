@@ -14,6 +14,10 @@ const gemColors: Record<string, string> = {
   yellow: 'bg-[hsl(var(--gem-yellow))]',
   purple: 'bg-[hsl(var(--gem-purple))]',
   orange: 'bg-[hsl(var(--gem-orange))]',
+  pink: 'bg-[hsl(var(--gem-pink))]',
+  cyan: 'bg-[hsl(var(--gem-cyan))]',
+  lime: 'bg-[hsl(var(--gem-lime))]',
+  magenta: 'bg-[hsl(var(--gem-magenta))]',
 };
 
 const gemIcons: Record<string, string> = {
@@ -23,6 +27,10 @@ const gemIcons: Record<string, string> = {
   yellow: '⭐',
   purple: '💜',
   orange: '🔶',
+  pink: '🌸',
+  cyan: '💧',
+  lime: '🍏',
+  magenta: '🔮',
 };
 
 export const GemTile = ({ gem, isSelected, onClick }: GemTileProps) => {

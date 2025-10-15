@@ -17,6 +17,10 @@ const gemIcons: Record<GemType, string> = {
   yellow: '⭐',
   purple: '💜',
   orange: '🔶',
+  pink: '🌸',
+  cyan: '💧',
+  lime: '🍏',
+  magenta: '🔮',
 };
 
 export const GameHeader = ({ score, moves, goals }: GameHeaderProps) => {
