@@ -36,13 +36,82 @@ const createRandomGem = (row: number, col: number): Gem => {
 
 const initializeBoard = (): (Gem | null)[][] => {
   const board: (Gem | null)[][] = [];
+  let attempts = 0;
+  const maxAttempts = 100;
+  
+  while (attempts < maxAttempts) {
+    // Create initial board
+    for (let row = 0; row < BOARD_SIZE; row++) {
+      board[row] = [];
+      for (let col = 0; col < BOARD_SIZE; col++) {
+        let gem: Gem;
+        let safetyCount = 0;
+        
+        // Ensure no initial matches
+        do {
+          gem = createRandomGem(row, col);
+          safetyCount++;
+        } while (
+          safetyCount < 50 &&
+          ((col >= 2 && board[row][col - 1]?.type === gem.type && board[row][col - 2]?.type === gem.type) ||
+          (row >= 2 && board[row - 1]?.[col]?.type === gem.type && board[row - 2]?.[col]?.type === gem.type))
+        );
+        
+        board[row][col] = gem;
+      }
+    }
+    
+    // Check if board has at least one possible move
+    if (hasPossibleMoves(board)) {
+      return board;
+    }
+    attempts++;
+  }
+  
+  return board;
+};
+
+const hasPossibleMoves = (board: (Gem | null)[][]): boolean => {
+  // Check all possible swaps
   for (let row = 0; row < BOARD_SIZE; row++) {
-    board[row] = [];
     for (let col = 0; col < BOARD_SIZE; col++) {
-      board[row][col] = createRandomGem(row, col);
+      // Try horizontal swap
+      if (col < BOARD_SIZE - 1) {
+        const testBoard = board.map(r => [...r]);
+        [testBoard[row][col], testBoard[row][col + 1]] = [testBoard[row][col + 1], testBoard[row][col]];
+        if (hasMatches(testBoard)) return true;
+      }
+      // Try vertical swap
+      if (row < BOARD_SIZE - 1) {
+        const testBoard = board.map(r => [...r]);
+        [testBoard[row][col], testBoard[row + 1][col]] = [testBoard[row + 1][col], testBoard[row][col]];
+        if (hasMatches(testBoard)) return true;
+      }
     }
   }
-  return board;
+  return false;
+};
+
+const hasMatches = (board: (Gem | null)[][]): boolean => {
+  // Check horizontal matches
+  for (let row = 0; row < BOARD_SIZE; row++) {
+    for (let col = 0; col < BOARD_SIZE - 2; col++) {
+      const gem = board[row][col];
+      if (gem && board[row][col + 1]?.type === gem.type && board[row][col + 2]?.type === gem.type) {
+        return true;
+      }
+    }
+  }
+  // Check vertical matches
+  for (let col = 0; col < BOARD_SIZE; col++) {
+    for (let row = 0; row < BOARD_SIZE - 2; row++) {
+      const gem = board[row][col];
+      if (gem && board[row + 1][col]?.type === gem.type && board[row + 2][col]?.type === gem.type) {
+        return true;
+      }
+    }
+  }
+  return false;
 };
 
 export const GameBoard = ({ onScoreChange, onMoveUsed, onGemsCollected, onCombo, gameOver }: GameBoardProps) => {
@@ -202,16 +271,61 @@ export const GameBoard = ({ onScoreChange, onMoveUsed, onGemsCollected, onCombo,
       if (newMatches.length > 0) {
         removeMatches(newMatches);
       } else {
+        // Tahtada hareket olup olmadığını kontrol et
+        if (!hasPossibleMoves(newBoard)) {
+          // Hareket yoksa tahtayı yeniden karıştır
+          const shuffled = shuffleBoard(newBoard);
+          setBoard(shuffled);
+        }
         comboRef.current = 0;
         isProcessingRef.current = false;
       }
     }, 300);
   }, [checkMatches, removeMatches]);
 
+  const shuffleBoard = (currentBoard: (Gem | null)[][]): (Gem | null)[][] => {
+    const newBoard = currentBoard.map(row => [...row]);
+    const allGems: (Gem | null)[] = [];
+    
+    // Tüm taşları topla
+    for (let row = 0; row < BOARD_SIZE; row++) {
+      for (let col = 0; col < BOARD_SIZE; col++) {
+        if (newBoard[row][col]) {
+          allGems.push(newBoard[row][col]);
+        }
+      }
+    }
+    
+    // Karıştır
+    for (let i = allGems.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [allGems[i], allGems[j]] = [allGems[j], allGems[i]];
+    }
+    
+    // Geri yerleştir
+    let index = 0;
+    for (let row = 0; row < BOARD_SIZE; row++) {
+      for (let col = 0; col < BOARD_SIZE; col++) {
+        if (allGems[index]) {
+          const gem = allGems[index];
+          if (gem) {
+            gem.row = row;
+            gem.col = col;
+          }
+          newBoard[row][col] = gem;
+          index++;
+        }
+      }
+    }
+    
+    return newBoard;
+  };
+
   const swapGems = useCallback((row1: number, col1: number, row2: number, col2: number) => {
     if (isProcessingRef.current) return;
     
     isProcessingRef.current = true;
+    onMoveUsed(); // Her hamle sayar
     soundManager.play('swap');
     
     const newBoard = board.map(row => [...row]);
@@ -224,17 +338,10 @@ export const GameBoard = ({ onScoreChange, onMoveUsed, onGemsCollected, onCombo,
     setTimeout(() => {
       const matches = checkMatches(newBoard);
       if (matches.length > 0) {
-        onMoveUsed();
         comboRef.current = 0;
         removeMatches(matches);
       } else {
-        // Swap back if no matches
-        soundManager.play('swap');
-        const revertBoard = newBoard.map(row => [...row]);
-        const temp = revertBoard[row1][col1];
-        revertBoard[row1][col1] = revertBoard[row2][col2];
-        revertBoard[row2][col2] = temp;
-        setBoard(revertBoard);
+        // Eşleşme olmasa bile hamle geçerli, sadece geri dönme yok
         isProcessingRef.current = false;
       }
     }, 200);

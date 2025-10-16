@@ -1,19 +1,35 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { LevelCard } from "@/components/game/LevelCard";
 import { Level } from "@/types/game";
 
-const INITIAL_LEVELS: Level[] = Array.from({ length: 25 }, (_, i) => ({
-  id: i + 1,
-  name: i < 5 ? "Kolay" : i < 10 ? "Orta" : i < 15 ? "Zor" : i < 20 ? "Çok Zor" : "Efsane",
-  moves: 25 - Math.floor(i * 0.7),
-  goals: [],
-  unlocked: true,
-}));
+const TOTAL_LEVELS = 25;
+
+const createInitialLevels = (): Level[] => {
+  const unlockedLevel = parseInt(localStorage.getItem('unlockedLevel') || '1');
+  
+  return Array.from({ length: TOTAL_LEVELS }, (_, i) => ({
+    id: i + 1,
+    name: i < 5 ? "Kolay" : i < 10 ? "Orta" : i < 15 ? "Zor" : i < 20 ? "Çok Zor" : "Efsane",
+    moves: 25 - Math.floor(i * 0.7),
+    goals: [],
+    unlocked: i + 1 <= unlockedLevel,
+  }));
+};
 
 export default function Index() {
   const navigate = useNavigate();
-  const [levels] = useState<Level[]>(INITIAL_LEVELS);
+  const [levels, setLevels] = useState<Level[]>(createInitialLevels);
+
+  useEffect(() => {
+    // Seviye tamamlandığında güncelleme için event listener
+    const handleLevelComplete = () => {
+      setLevels(createInitialLevels());
+    };
+    
+    window.addEventListener('levelComplete', handleLevelComplete);
+    return () => window.removeEventListener('levelComplete', handleLevelComplete);
+  }, []);
 
   const handleLevelSelect = (levelId: number) => {
     navigate(`/game?level=${levelId}`);

@@ -13,6 +13,7 @@ interface GameOverModalProps {
   score: number;
   onRestart: () => void;
   onLevelSelect: () => void;
+  onNextLevel?: () => void;
 }
 
 export const GameOverModal = ({
@@ -21,6 +22,7 @@ export const GameOverModal = ({
   score,
   onRestart,
   onLevelSelect,
+  onNextLevel,
 }: GameOverModalProps) => {
   return (
     <Dialog open={isOpen}>
@@ -42,9 +44,18 @@ export const GameOverModal = ({
         </div>
 
         <div className="flex gap-3">
+          {isWon && onNextLevel && (
+            <Button
+              onClick={onNextLevel}
+              className="flex-1 bg-gradient-to-r from-primary to-accent"
+            >
+              Sonraki Seviye
+            </Button>
+          )}
           <Button
             onClick={onRestart}
-            className="flex-1 bg-gradient-to-r from-primary to-accent"
+            variant="outline"
+            className="flex-1"
           >
             Tekrar Oyna
           </Button>

@@ -89,12 +89,20 @@ export default function Game() {
     if (allGoalsCompleted && moves >= 0) {
       setIsWon(true);
       setIsGameOver(true);
+      
+      // Bir sonraki seviyeyi aç
+      const currentUnlocked = parseInt(localStorage.getItem('unlockedLevel') || '1');
+      if (levelId >= currentUnlocked && levelId < 25) {
+        localStorage.setItem('unlockedLevel', String(levelId + 1));
+        window.dispatchEvent(new Event('levelComplete'));
+      }
+      
       toast.success("Seviyeyi tamamladın! 🎉");
     } else if (moves === 0 && !allGoalsCompleted) {
       setIsGameOver(true);
       toast.error("Hamle kalmadı! 😢");
     }
-  }, [goals, moves]);
+  }, [goals, moves, levelId]);
 
   const handleRestart = () => {
     setScore(0);
@@ -147,6 +155,7 @@ export default function Game() {
         score={score}
         onRestart={handleRestart}
         onLevelSelect={() => navigate('/')}
+        onNextLevel={isWon && levelId < 25 ? () => navigate(`/game?level=${levelId + 1}`) : undefined}
       />
     </div>
   );
