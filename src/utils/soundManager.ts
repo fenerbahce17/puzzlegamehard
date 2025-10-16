@@ -2,9 +2,11 @@
 class SoundManager {
   private sounds: Map<string, HTMLAudioElement> = new Map();
   private enabled: boolean = true;
+  private backgroundMusic: HTMLAudioElement | null = null;
 
   constructor() {
     this.initSounds();
+    this.initBackgroundMusic();
   }
 
   private initSounds() {
@@ -14,6 +16,27 @@ class SoundManager {
     this.generateCascadeSound();
     this.generateComboSound();
     this.generatePowerUpSound();
+  }
+
+  private initBackgroundMusic() {
+    // Telif hakkı olmayan soft arka plan müziği
+    const musicUrl = 'https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3';
+    
+    this.backgroundMusic = new Audio(musicUrl);
+    this.backgroundMusic.loop = true;
+    this.backgroundMusic.volume = 0.2; // Soft/düşük ses seviyesi
+    
+    // Kullanıcı ilk etkileşimi sonrası müziği başlat
+    const startMusic = () => {
+      if (this.enabled && this.backgroundMusic && this.backgroundMusic.paused) {
+        this.backgroundMusic.play().catch(() => {
+          // Tarayıcı otomatik çalmayı engellediyse sessizce devam et
+        });
+      }
+    };
+    
+    document.addEventListener('click', startMusic, { once: true });
+    document.addEventListener('touchstart', startMusic, { once: true });
   }
 
   private generateMatchSound() {
@@ -76,6 +99,16 @@ class SoundManager {
 
   toggle() {
     this.enabled = !this.enabled;
+    
+    // Arka plan müziğini aç/kapat
+    if (this.backgroundMusic) {
+      if (this.enabled) {
+        this.backgroundMusic.play().catch(() => {});
+      } else {
+        this.backgroundMusic.pause();
+      }
+    }
+    
     return this.enabled;
   }
 

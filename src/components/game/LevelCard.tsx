@@ -10,23 +10,41 @@ interface LevelCardProps {
 
 export const LevelCard = ({ level, onSelect }: LevelCardProps) => {
   return (
-    <Card className="bg-card/80 backdrop-blur-sm border-border/50 hover:border-primary/50 transition-all">
-      <CardContent className="p-6">
-        <div className="flex flex-col items-center gap-4">
-          <div className="text-4xl font-bold text-primary">
-            {level.unlocked ? level.id : <Lock className="w-8 h-8" />}
-          </div>
-          <div className="text-center">
-            <h3 className="text-xl font-semibold mb-1">{level.name}</h3>
-            <p className="text-sm text-muted-foreground">{level.moves} Hamle</p>
-          </div>
-          <Button
-            onClick={onSelect}
-            disabled={!level.unlocked}
-            className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90"
-          >
-            {level.unlocked ? 'Oyna' : 'Kilitli'}
-          </Button>
+    <Card className={`bg-card/80 backdrop-blur-sm border-border/50 transition-all ${level.unlocked ? 'hover:border-primary/50 hover:scale-105 cursor-pointer' : 'opacity-60'}`}>
+      <CardContent className="p-4">
+        <div className="flex flex-col items-center gap-3">
+          {level.unlocked ? (
+            <>
+              <div className="text-5xl mb-1">
+                {level.name.split(' ')[0]}
+              </div>
+              <div className="text-center">
+                <h3 className="text-base font-semibold mb-1 line-clamp-1">{level.name.split(' ').slice(1).join(' ')}</h3>
+                <p className="text-xs text-muted-foreground">Seviye {level.id} • {level.moves} Hamle</p>
+              </div>
+              <Button
+                onClick={onSelect}
+                className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90 text-sm py-2"
+              >
+                Oyna
+              </Button>
+            </>
+          ) : (
+            <>
+              <Lock className="w-10 h-10 text-muted-foreground/50 mb-2" />
+              <div className="text-center">
+                <h3 className="text-sm font-semibold text-muted-foreground line-clamp-1">{level.name.split(' ').slice(1).join(' ')}</h3>
+                <p className="text-xs text-muted-foreground">Seviye {level.id}</p>
+              </div>
+              <Button
+                disabled
+                className="w-full text-sm py-2"
+                variant="outline"
+              >
+                Kilitli
+              </Button>
+            </>
+          )}
         </div>
       </CardContent>
     </Card>
