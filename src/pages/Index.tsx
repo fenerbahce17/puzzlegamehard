@@ -3,17 +3,58 @@ import { useNavigate } from "react-router-dom";
 import { LevelCard } from "@/components/game/LevelCard";
 import { Level } from "@/types/game";
 
-const TOTAL_LEVELS = 25;
+const TOTAL_LEVELS = 200;
 
 const LEVEL_NAMES = [
-  '🇦🇫 Afganistan', '🇪🇹 Etiyopya', '🇧🇩 Bangladeş', '🇳🇵 Nepal', '🇰🇪 Kenya',
-  '🇵🇭 Filipinler', '🇻🇳 Vietnam', '🇮🇩 Endonezya', '🇪🇬 Mısır', '🇮🇳 Hindistan',
-  '🇹🇭 Tayland', '🇧🇷 Brezilya', '🇲🇽 Meksika', '🇦🇷 Arjantin', '🇿🇦 Güney Afrika',
-  '🇷🇺 Rusya', '🇵🇱 Polonya', '🇪🇸 İspanya', '🇮🇹 İtalya', '🇫🇷 Fransa',
-  '🇬🇧 İngiltere', '🇨🇦 Kanada', '🇩🇪 Almanya', '🇯🇵 Japonya', '🇹🇷 Türkiye'
+  '🇦🇫 Kabul', '🇦🇫 Kandahar', '🇦🇫 Herat', '🇪🇹 Addis Ababa', '🇪🇹 Dire Dawa',
+  '🇧🇩 Dhaka', '🇧🇩 Chittagong', '🇳🇵 Kathmandu', '🇳🇵 Pokhara', '🇰🇪 Nairobi',
+  '🇰🇪 Mombasa', '🇵🇰 Karachi', '🇵🇰 Lahore', '🇵🇰 Islamabad', '🇵🇭 Manila',
+  '🇵🇭 Cebu', '🇵🇭 Davao', '🇻🇳 Hanoi', '🇻🇳 Ho Chi Minh', '🇻🇳 Da Nang',
+  '🇮🇩 Jakarta', '🇮🇩 Surabaya', '🇮🇩 Bandung', '🇮🇩 Medan', '🇪🇬 Cairo',
+  '🇪🇬 Alexandria', '🇪🇬 Giza', '🇮🇳 Delhi', '🇮🇳 Mumbai', '🇮🇳 Bangalore',
+  '🇮🇳 Kolkata', '🇮🇳 Chennai', '🇹🇭 Bangkok', '🇹🇭 Pattaya', '🇹🇭 Chiang Mai',
+  '🇧🇷 São Paulo', '🇧🇷 Rio de Janeiro', '🇧🇷 Brasília', '🇧🇷 Salvador', '🇲🇽 Mexico City',
+  '🇲🇽 Guadalajara', '🇲🇽 Monterrey', '🇦🇷 Buenos Aires', '🇦🇷 Córdoba', '🇿🇦 Johannesburg',
+  '🇿🇦 Cape Town', '🇿🇦 Durban', '🇷🇺 Moscow', '🇷🇺 St Petersburg', '🇵🇱 Warsaw',
+  '🇵🇱 Krakow', '🇪🇸 Madrid', '🇪🇸 Barcelona', '🇪🇸 Valencia', '🇪🇸 Seville',
+  '🇮🇹 Rome', '🇮🇹 Milan', '🇮🇹 Naples', '🇮🇹 Florence', '🇮🇹 Venice',
+  '🇫🇷 Paris', '🇫🇷 Lyon', '🇫🇷 Marseille', '🇫🇷 Nice', '🇬🇧 London',
+  '🇬🇧 Manchester', '🇬🇧 Birmingham', '🇬🇧 Liverpool', '🇨🇦 Toronto', '🇨🇦 Montreal',
+  '🇨🇦 Vancouver', '🇩🇪 Berlin', '🇩🇪 Munich', '🇩🇪 Hamburg', '🇩🇪 Frankfurt',
+  '🇯🇵 Tokyo', '🇯🇵 Osaka', '🇯🇵 Kyoto', '🇯🇵 Yokohama', '🇰🇷 Seoul',
+  '🇰🇷 Busan', '🇦🇺 Sydney', '🇦🇺 Melbourne', '🇦🇺 Brisbane', '🇦🇺 Perth',
+  '🇳🇿 Auckland', '🇳🇿 Wellington', '🇨🇳 Beijing', '🇨🇳 Shanghai', '🇨🇳 Guangzhou',
+  '🇨🇳 Shenzhen', '🇨🇳 Hong Kong', '🇸🇬 Singapore', '🇲🇾 Kuala Lumpur', '🇦🇪 Dubai',
+  '🇦🇪 Abu Dhabi', '🇸🇦 Riyadh', '🇸🇦 Jeddah', '🇮🇱 Tel Aviv', '🇮🇱 Jerusalem',
+  '🇱🇧 Beirut', '🇯🇴 Amman', '🇶🇦 Doha', '🇰🇼 Kuwait City', '🇺🇸 New York',
+  '🇺🇸 Los Angeles', '🇺🇸 Chicago', '🇺🇸 Houston', '🇺🇸 Miami', '🇺🇸 San Francisco',
+  '🇺🇸 Las Vegas', '🇺🇸 Boston', '🇺🇸 Seattle', '🇺🇸 Washington DC', '🇨🇭 Zurich',
+  '🇨🇭 Geneva', '🇦🇹 Vienna', '🇦🇹 Salzburg', '🇧🇪 Brussels', '🇳🇱 Amsterdam',
+  '🇳🇱 Rotterdam', '🇩🇰 Copenhagen', '🇸🇪 Stockholm', '🇸🇪 Gothenburg', '🇳🇴 Oslo',
+  '🇫🇮 Helsinki', '🇮🇪 Dublin', '🇵🇹 Lisbon', '🇵🇹 Porto', '🇬🇷 Athens',
+  '🇭🇷 Zagreb', '🇭🇷 Dubrovnik', '🇷🇸 Belgrade', '🇧🇬 Sofia', '🇷🇴 Bucharest',
+  '🇭🇺 Budapest', '🇨🇿 Prague', '🇺🇦 Kyiv', '🇺🇦 Odessa', '🇬🇪 Tbilisi',
+  '🇦🇲 Yerevan', '🇦🇿 Baku', '🇰🇿 Almaty', '🇺🇿 Tashkent', '🇺🇿 Samarkand',
+  '🇮🇷 Tehran', '🇮🇷 Isfahan', '🇮🇶 Baghdad', '🇸🇾 Damascus', '🇨🇴 Bogotá',
+  '🇨🇴 Medellín', '🇵🇪 Lima', '🇵🇪 Cusco', '🇨🇱 Santiago', '🇻🇪 Caracas',
+  '🇪🇨 Quito', '🇧🇴 La Paz', '🇳🇬 Lagos', '🇬🇭 Accra', '🇲🇦 Casablanca',
+  '🇲🇦 Marrakech', '🇹🇳 Tunis', '🇩🇿 Algiers', '🇱🇰 Colombo', '🇲🇲 Yangon',
+  '🇰🇭 Phnom Penh', '🇱🇦 Vientiane', '🇲🇳 Ulaanbaatar', '🇹🇼 Taipei', '🇨🇺 Havana',
+  '🇩🇴 Santo Domingo', '🇯🇲 Kingston', '🇵🇦 Panama City', '🇨🇷 San José', '🇬🇹 Guatemala City',
+  '🇭🇳 Tegucigalpa', '🇸🇻 San Salvador', '🇳🇮 Managua', '🇹🇷 Istanbul', '🇹🇷 Ankara',
+  '🇹🇷 Izmir', '🇹🇷 Antalya', '🇹🇷 Bursa', '🇹🇷 Adana', '🇹🇷 Gaziantep',
+  '🇹🇷 Konya', '🇹🇷 Kayseri', '🇹🇷 Diyarbakır', '🇹🇷 Mersin', '🇹🇷 Eskişehir',
+  '🇹🇷 Samsun', '🇹🇷 Denizli', '🇹🇷 Trabzon', '🇹🇷 Malatya', '🇹🇷 Erzurum',
+  '🇹🇷 Van', '🇹🇷 Şanlıurfa', '🇹🇷 Kocaeli', '🇹🇷 Hatay', '🇹🇷 Bodrum'
 ];
 
-const LEVEL_MOVES = [30, 30, 28, 28, 26, 26, 25, 25, 24, 24, 23, 23, 22, 22, 21, 21, 20, 20, 19, 19, 18, 18, 17, 17, 16];
+const LEVEL_MOVES = Array(200).fill(15).map((moves, i) => {
+  if (i < 5) return 30 - Math.floor(i / 2);
+  if (i < 15) return 28 - Math.floor((i - 5) / 3);
+  if (i < 35) return 25 - Math.floor((i - 15) / 5);
+  if (i < 75) return 20 - Math.floor((i - 35) / 8);
+  return 15;
+});
 
 const createInitialLevels = (): Level[] => {
   const unlockedLevel = parseInt(localStorage.getItem('unlockedLevel') || '1');
@@ -55,23 +96,23 @@ export default function Index() {
             </h1>
           </div>
           <p className="text-2xl font-semibold text-foreground/90">
-            Dünyayı Fethet, Taşları Eşleştir!
+            Conquer the World, Match the Gems!
           </p>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            25 farklı ülkede macerana başla. Her seviyede yeni zorluklarla karşılaş ve Türkiye'ye ulaşmak için tüm dünyayı dolaş!
+            Start your adventure in 200 cities around the world. Face new challenges at each level and travel the entire world to reach Turkey!
           </p>
           <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground">
             <div className="flex items-center gap-2 bg-card/60 backdrop-blur-sm rounded-full px-4 py-2 border border-border/50">
               <span className="text-2xl">🎯</span>
-              <span>Hedefleri Tamamla</span>
+              <span>Complete Goals</span>
             </div>
             <div className="flex items-center gap-2 bg-card/60 backdrop-blur-sm rounded-full px-4 py-2 border border-border/50">
               <span className="text-2xl">⚡</span>
-              <span>Kombo Yap</span>
+              <span>Make Combos</span>
             </div>
             <div className="flex items-center gap-2 bg-card/60 backdrop-blur-sm rounded-full px-4 py-2 border border-border/50">
               <span className="text-2xl">🏆</span>
-              <span>Seviyeleri Aç</span>
+              <span>Unlock Levels</span>
             </div>
           </div>
         </div>
@@ -90,7 +131,7 @@ export default function Index() {
           <div className="inline-flex items-center gap-3 bg-gradient-to-r from-primary/10 to-accent/10 backdrop-blur-sm rounded-2xl px-8 py-4 border border-primary/20 shadow-lg">
             <span className="text-3xl">✨</span>
             <span className="text-lg font-semibold text-foreground">
-              3 veya daha fazla taşı eşleştirerek kombo yap!
+              Match 3 or more gems to make combos!
             </span>
             <span className="text-3xl">✨</span>
           </div>

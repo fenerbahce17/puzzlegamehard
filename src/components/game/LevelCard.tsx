@@ -20,13 +20,13 @@ export const LevelCard = ({ level, onSelect }: LevelCardProps) => {
               </div>
               <div className="text-center">
                 <h3 className="text-base font-semibold mb-1 line-clamp-1">{level.name.split(' ').slice(1).join(' ')}</h3>
-                <p className="text-xs text-muted-foreground">Seviye {level.id} • {level.moves} Hamle</p>
+                <p className="text-xs text-muted-foreground">Level {level.id} • {level.moves} Moves</p>
               </div>
               <Button
                 onClick={onSelect}
                 className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90 text-sm py-2"
               >
-                Oyna
+                Play
               </Button>
             </>
           ) : (
@@ -34,14 +34,14 @@ export const LevelCard = ({ level, onSelect }: LevelCardProps) => {
               <Lock className="w-10 h-10 text-muted-foreground/50 mb-2" />
               <div className="text-center">
                 <h3 className="text-sm font-semibold text-muted-foreground line-clamp-1">{level.name.split(' ').slice(1).join(' ')}</h3>
-                <p className="text-xs text-muted-foreground">Seviye {level.id}</p>
+                <p className="text-xs text-muted-foreground">Level {level.id}</p>
               </div>
               <Button
                 disabled
                 className="w-full text-sm py-2"
                 variant="outline"
               >
-                Kilitli
+                Locked
               </Button>
             </>
           )}

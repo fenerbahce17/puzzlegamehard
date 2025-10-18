@@ -29,17 +29,17 @@ export const GameOverModal = ({
       <DialogContent className="bg-card/95 backdrop-blur-sm border-border/50">
         <DialogHeader>
           <DialogTitle className="text-3xl text-center mb-2">
-            {isWon ? '🎉 Tebrikler!' : '😢 Oyun Bitti'}
+            {isWon ? '🎉 Congratulations!' : '😢 Game Over'}
           </DialogTitle>
           <DialogDescription className="text-center text-lg">
             {isWon
-              ? 'Seviyeyi başarıyla tamamladın!'
-              : 'Hamle kalmadı! Tekrar dene.'}
+              ? 'You successfully completed the level!'
+              : 'No moves left! Try again.'}
           </DialogDescription>
         </DialogHeader>
         
         <div className="text-center py-4">
-          <div className="text-sm text-muted-foreground">Toplam Skor</div>
+          <div className="text-sm text-muted-foreground">Total Score</div>
           <div className="text-4xl font-bold text-primary">{score}</div>
         </div>
 
@@ -49,7 +49,7 @@ export const GameOverModal = ({
               onClick={onNextLevel}
               className="flex-1 bg-gradient-to-r from-primary to-accent"
             >
-              Sonraki Seviye
+              Next Level
             </Button>
           )}
           <Button
@@ -57,14 +57,14 @@ export const GameOverModal = ({
             variant="outline"
             className="flex-1"
           >
-            Tekrar Oyna
+            Restart
           </Button>
           <Button
             onClick={onLevelSelect}
             variant="outline"
             className="flex-1"
           >
-            Seviye Seç
+            Level Select
           </Button>
         </div>
       </DialogContent>
