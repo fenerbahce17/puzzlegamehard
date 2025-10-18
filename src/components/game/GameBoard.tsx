@@ -4,6 +4,7 @@ import { GemTile } from "./GemTile";
 import { cn } from "@/lib/utils";
 import { soundManager } from "@/utils/soundManager";
 import { ParticleEffect } from "./ParticleEffect";
+import { BonusNotification } from "./BonusNotification";
 
 interface GameBoardProps {
   onScoreChange: (score: number) => void;
@@ -11,6 +12,7 @@ interface GameBoardProps {
   onGemsCollected: (type: GemType, count: number) => void;
   onCombo: (combo: number) => void;
   gameOver: boolean;
+  targetGemTypes: GemType[];
 }
 
 const BOARD_SIZE = 8;
@@ -114,12 +116,18 @@ const hasMatches = (board: (Gem | null)[][]): boolean => {
   return false;
 };
 
-export const GameBoard = ({ onScoreChange, onMoveUsed, onGemsCollected, onCombo, gameOver }: GameBoardProps) => {
+export const GameBoard = ({ onScoreChange, onMoveUsed, onGemsCollected, onCombo, gameOver, targetGemTypes }: GameBoardProps) => {
   const [board, setBoard] = useState<(Gem | null)[][]>(initializeBoard);
   const [selectedGem, setSelectedGem] = useState<{ row: number; col: number } | null>(null);
   const [particles, setParticles] = useState<Array<{ id: string; x: number; y: number; color: string }>>([]);
+  const [bonusCounter, setBonusCounter] = useState(0);
+  const [showBonus, setShowBonus] = useState(false);
+  const [lastBonusAmount, setLastBonusAmount] = useState(0);
   const comboRef = useRef(0);
   const isProcessingRef = useRef(false);
+  
+  const BONUS_THRESHOLD = 10; // Every 10 non-target matches triggers bonus
+  const BONUS_GEMS_PER_TARGET = 2; // Add 2 gems to each target type
 
   const checkMatches = useCallback((currentBoard: (Gem | null)[][]) => {
     const matchSet = new Set<string>();
@@ -208,12 +216,41 @@ export const GameBoard = ({ onScoreChange, onMoveUsed, onGemsCollected, onCombo,
       setParticles(prev => prev.filter(p => !newParticles.includes(p)));
     }, 600);
 
-    // Report collected gems
+    // Track non-target gem matches for bonus system
+    let nonTargetGemsCount = 0;
     Object.entries(gemsCollected).forEach(([type, count]) => {
       if (count > 0) {
         onGemsCollected(type as GemType, count);
+        
+        // Count non-target gems
+        if (!targetGemTypes.includes(type as GemType)) {
+          nonTargetGemsCount += count;
+        }
       }
     });
+    
+    // Update bonus counter and trigger bonus if threshold reached
+    if (nonTargetGemsCount > 0) {
+      const newBonusCounter = bonusCounter + nonTargetGemsCount;
+      
+      if (newBonusCounter >= BONUS_THRESHOLD) {
+        const bonusMultiplier = Math.floor(newBonusCounter / BONUS_THRESHOLD);
+        const bonusAmount = BONUS_GEMS_PER_TARGET * bonusMultiplier;
+        const remainingCounter = newBonusCounter % BONUS_THRESHOLD;
+        
+        // Give bonus gems to all target types
+        targetGemTypes.forEach(targetType => {
+          onGemsCollected(targetType, bonusAmount);
+        });
+        
+        setBonusCounter(remainingCounter);
+        setLastBonusAmount(bonusAmount * targetGemTypes.length);
+        setShowBonus(true);
+        soundManager.play('powerup');
+      } else {
+        setBonusCounter(newBonusCounter);
+      }
+    }
 
     // Combo system
     comboRef.current++;
@@ -382,6 +419,24 @@ export const GameBoard = ({ onScoreChange, onMoveUsed, onGemsCollected, onCombo,
         )}
       </div>
       
+      {/* Bonus progress indicator */}
+      <div className="mt-2 text-center">
+        <div className="inline-flex items-center gap-2 bg-card/80 px-4 py-2 rounded-full border border-border/50">
+          <span className="text-sm font-medium">Bonus Progress:</span>
+          <div className="flex gap-1">
+            {Array.from({ length: BONUS_THRESHOLD }).map((_, i) => (
+              <div
+                key={i}
+                className={cn(
+                  "w-2 h-2 rounded-full transition-all duration-300",
+                  i < bonusCounter ? "bg-gradient-to-r from-yellow-400 to-orange-500 scale-110" : "bg-muted"
+                )}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+      
       {particles.map(particle => (
         <ParticleEffect
           key={particle.id}
@@ -390,6 +445,12 @@ export const GameBoard = ({ onScoreChange, onMoveUsed, onGemsCollected, onCombo,
           color={particle.color}
         />
       ))}
+      
+      <BonusNotification
+        show={showBonus}
+        bonusAmount={lastBonusAmount}
+        onComplete={() => setShowBonus(false)}
+      />
     </div>
   );
 };
