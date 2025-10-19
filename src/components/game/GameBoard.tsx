@@ -126,8 +126,8 @@ export const GameBoard = ({ onScoreChange, onMoveUsed, onGemsCollected, onCombo,
   const comboRef = useRef(0);
   const isProcessingRef = useRef(false);
   
-  const BONUS_THRESHOLD = 10; // Every 10 non-target matches triggers bonus
-  const BONUS_GEMS_PER_TARGET = 2; // Add 2 gems to each target type
+  const BONUS_THRESHOLD = 18; // Every 18 non-target matches triggers bonus
+  const BONUS_GEMS_PER_TARGET = 1; // Add 1 gem to each target type
 
   const checkMatches = useCallback((currentBoard: (Gem | null)[][]) => {
     const matchSet = new Set<string>();
