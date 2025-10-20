@@ -19,8 +19,8 @@ class SoundManager {
   }
 
   private initBackgroundMusic() {
-    // Telif hakkı olmayan soft arka plan müziği
-    const musicUrl = 'https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3';
+    // Özel arka plan müziği
+    const musicUrl = '/music/background.mp3';
     
     this.backgroundMusic = new Audio(musicUrl);
     this.backgroundMusic.loop = true;
