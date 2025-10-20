@@ -36,7 +36,7 @@ export default function Index() {
       <div className="max-w-6xl w-full">
         <div className="text-center mb-12 space-y-4">
           <div className="inline-block">
-            <h1 className="text-7xl font-bold mb-2 bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent drop-shadow-2xl tracking-tight">
+            <h1 className="text-7xl font-bold mb-2 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent drop-shadow-2xl tracking-tight">
               🌍 City Match 3 Quest
             </h1>
           </div>
