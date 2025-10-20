@@ -20,10 +20,21 @@ const GEM_TYPES: GemType[] = ['red', 'blue', 'green', 'yellow', 'purple', 'orang
 const BONUS_THRESHOLD = 18; // Bonus için gereken hedef dışı taş sayısı
 const BONUS_GEMS_PER_TARGET = 1; // Her bonus aktivasyonunda hedefe eklenen taş sayısı
 
-const createRandomGem = (row: number, col: number): Gem => {
+const createRandomGem = (row: number, col: number, targetTypes: GemType[] = [], favorTargets: boolean = false): Gem => {
+  let gemType: GemType;
+  
+  // If we should favor target gems and we have target types
+  if (favorTargets && targetTypes.length > 0 && Math.random() < 0.65) {
+    // 65% chance to create a target gem when favorTargets is true
+    gemType = targetTypes[Math.floor(Math.random() * targetTypes.length)];
+  } else {
+    // Otherwise random gem
+    gemType = GEM_TYPES[Math.floor(Math.random() * GEM_TYPES.length)];
+  }
+  
   const gem: Gem = {
     id: `${row}-${col}-${Math.random()}`,
-    type: GEM_TYPES[Math.floor(Math.random() * GEM_TYPES.length)],
+    type: gemType,
     row,
     col,
     isNew: true,
@@ -38,13 +49,13 @@ const createRandomGem = (row: number, col: number): Gem => {
   return gem;
 };
 
-const initializeBoard = (): (Gem | null)[][] => {
+const initializeBoard = (targetTypes: GemType[] = []): (Gem | null)[][] => {
   const board: (Gem | null)[][] = [];
   let attempts = 0;
   const maxAttempts = 100;
   
   while (attempts < maxAttempts) {
-    // Create initial board
+    // Create initial board with higher concentration of target gems
     for (let row = 0; row < BOARD_SIZE; row++) {
       board[row] = [];
       for (let col = 0; col < BOARD_SIZE; col++) {
@@ -53,7 +64,9 @@ const initializeBoard = (): (Gem | null)[][] => {
         
         // Ensure no initial matches
         do {
-          gem = createRandomGem(row, col);
+          // 50% of gems should be target gems initially for better odds
+          const favorTargets = targetTypes.length > 0 && Math.random() < 0.5;
+          gem = createRandomGem(row, col, targetTypes, favorTargets);
           safetyCount++;
         } while (
           safetyCount < 50 &&
@@ -65,14 +78,80 @@ const initializeBoard = (): (Gem | null)[][] => {
       }
     }
     
-    // Check if board has at least one possible move
-    if (hasPossibleMoves(board)) {
+    // Verify board quality
+    const hasValidMoves = hasPossibleMoves(board);
+    const hasEnoughTargetGems = countTargetGems(board, targetTypes) >= Math.min(targetTypes.length * 8, 20);
+    const hasTargetMatches = hasTargetGemMatches(board, targetTypes);
+    
+    if (hasValidMoves && hasEnoughTargetGems && hasTargetMatches) {
       return board;
     }
     attempts++;
   }
   
   return board;
+};
+
+// Count how many target gems are on the board
+const countTargetGems = (board: (Gem | null)[][], targetTypes: GemType[]): number => {
+  let count = 0;
+  for (let row = 0; row < BOARD_SIZE; row++) {
+    for (let col = 0; col < BOARD_SIZE; col++) {
+      const gem = board[row][col];
+      if (gem && targetTypes.includes(gem.type)) {
+        count++;
+      }
+    }
+  }
+  return count;
+};
+
+// Check if board has possible matches with target gems
+const hasTargetGemMatches = (board: (Gem | null)[][], targetTypes: GemType[]): boolean => {
+  for (let row = 0; row < BOARD_SIZE; row++) {
+    for (let col = 0; col < BOARD_SIZE; col++) {
+      // Try horizontal swap
+      if (col < BOARD_SIZE - 1) {
+        const testBoard = board.map(r => [...r]);
+        [testBoard[row][col], testBoard[row][col + 1]] = [testBoard[row][col + 1], testBoard[row][col]];
+        if (hasMatchesWithTargets(testBoard, targetTypes)) return true;
+      }
+      // Try vertical swap
+      if (row < BOARD_SIZE - 1) {
+        const testBoard = board.map(r => [...r]);
+        [testBoard[row][col], testBoard[row + 1][col]] = [testBoard[row + 1][col], testBoard[row][col]];
+        if (hasMatchesWithTargets(testBoard, targetTypes)) return true;
+      }
+    }
+  }
+  return false;
+};
+
+// Check if there are matches that include target gems
+const hasMatchesWithTargets = (board: (Gem | null)[][], targetTypes: GemType[]): boolean => {
+  // Check horizontal matches
+  for (let row = 0; row < BOARD_SIZE; row++) {
+    for (let col = 0; col < BOARD_SIZE - 2; col++) {
+      const gem = board[row][col];
+      if (gem && targetTypes.includes(gem.type) &&
+          board[row][col + 1]?.type === gem.type && 
+          board[row][col + 2]?.type === gem.type) {
+        return true;
+      }
+    }
+  }
+  // Check vertical matches
+  for (let col = 0; col < BOARD_SIZE; col++) {
+    for (let row = 0; row < BOARD_SIZE - 2; row++) {
+      const gem = board[row][col];
+      if (gem && targetTypes.includes(gem.type) &&
+          board[row + 1][col]?.type === gem.type && 
+          board[row + 2][col]?.type === gem.type) {
+        return true;
+      }
+    }
+  }
+  return false;
 };
 
 const hasPossibleMoves = (board: (Gem | null)[][]): boolean => {
@@ -119,7 +198,7 @@ const hasMatches = (board: (Gem | null)[][]): boolean => {
 };
 
 export const GameBoard = ({ onScoreChange, onMoveUsed, onGemsCollected, onCombo, gameOver, targetGemTypes }: GameBoardProps) => {
-  const [board, setBoard] = useState<(Gem | null)[][]>(initializeBoard);
+  const [board, setBoard] = useState<(Gem | null)[][]>(() => initializeBoard(targetGemTypes));
   const [selectedGem, setSelectedGem] = useState<{ row: number; col: number } | null>(null);
   const [particles, setParticles] = useState<Array<{ id: string; x: number; y: number; color: string }>>([]);
   const [bonusCounter, setBonusCounter] = useState(0);
@@ -275,7 +354,7 @@ export const GameBoard = ({ onScoreChange, onMoveUsed, onGemsCollected, onCombo,
     setTimeout(() => {
       dropGems(newBoard);
     }, 300);
-  }, [board, onScoreChange, onGemsCollected, onCombo]);
+  }, [board, onScoreChange, onGemsCollected, onCombo, targetGemTypes]);
 
   const dropGems = useCallback((currentBoard: (Gem | null)[][]) => {
     const newBoard = currentBoard.map(row => [...row]);
@@ -295,8 +374,9 @@ export const GameBoard = ({ onScoreChange, onMoveUsed, onGemsCollected, onCombo,
         }
       }
       
+      // Drop new gems with higher chance of target gems
       for (let row = emptySpaces - 1; row >= 0; row--) {
-        newBoard[row][col] = createRandomGem(row, col);
+        newBoard[row][col] = createRandomGem(row, col, targetGemTypes, true);
       }
     }
 
@@ -317,7 +397,7 @@ export const GameBoard = ({ onScoreChange, onMoveUsed, onGemsCollected, onCombo,
         isProcessingRef.current = false;
       }
     }, 300);
-  }, [checkMatches, removeMatches]);
+  }, [checkMatches, removeMatches, targetGemTypes]);
 
   const shuffleBoard = (currentBoard: (Gem | null)[][]): (Gem | null)[][] => {
     const newBoard = currentBoard.map(row => [...row]);
