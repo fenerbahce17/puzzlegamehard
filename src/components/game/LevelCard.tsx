@@ -2,6 +2,7 @@ import { Level } from "@/types/game";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Lock } from "lucide-react";
+import { getCountryFlag } from "@/utils/countryFlags";
 
 interface LevelCardProps {
   level: Level;
@@ -9,6 +10,8 @@ interface LevelCardProps {
 }
 
 export const LevelCard = ({ level, onSelect }: LevelCardProps) => {
+  const flag = getCountryFlag(level.name);
+  
   return (
     <Card className={`bg-card/80 backdrop-blur-sm border-border/50 transition-all ${level.unlocked ? 'hover:border-primary/50 hover:scale-105 cursor-pointer' : 'opacity-60'}`}>
       <CardContent className="p-4">
@@ -16,10 +19,10 @@ export const LevelCard = ({ level, onSelect }: LevelCardProps) => {
           {level.unlocked ? (
             <>
               <div className="text-5xl mb-1">
-                {level.name.split(' ')[0]}
+                {flag}
               </div>
               <div className="text-center">
-                <h3 className="text-base font-semibold mb-1 line-clamp-1">{level.name.split(' ').slice(1).join(' ')}</h3>
+                <h3 className="text-base font-semibold mb-1 line-clamp-1">{level.name}</h3>
                 <p className="text-xs text-muted-foreground">Level {level.id} • {level.moves} Moves</p>
               </div>
               <Button
@@ -31,9 +34,11 @@ export const LevelCard = ({ level, onSelect }: LevelCardProps) => {
             </>
           ) : (
             <>
-              <Lock className="w-10 h-10 text-muted-foreground/50 mb-2" />
+              <div className="text-5xl mb-1">
+                {flag}
+              </div>
               <div className="text-center">
-                <h3 className="text-sm font-semibold text-muted-foreground line-clamp-1">{level.name.split(' ').slice(1).join(' ')}</h3>
+                <h3 className="text-sm font-semibold text-muted-foreground line-clamp-1">{level.name}</h3>
                 <p className="text-xs text-muted-foreground">Level {level.id}</p>
               </div>
               <Button

@@ -17,6 +17,8 @@ interface GameBoardProps {
 
 const BOARD_SIZE = 8;
 const GEM_TYPES: GemType[] = ['red', 'blue', 'green', 'yellow', 'purple', 'orange', 'pink', 'cyan', 'lime', 'magenta'];
+const BONUS_THRESHOLD = 18; // Bonus için gereken hedef dışı taş sayısı
+const BONUS_GEMS_PER_TARGET = 1; // Her bonus aktivasyonunda hedefe eklenen taş sayısı
 
 const createRandomGem = (row: number, col: number): Gem => {
   const gem: Gem = {
@@ -125,9 +127,6 @@ export const GameBoard = ({ onScoreChange, onMoveUsed, onGemsCollected, onCombo,
   const [lastBonusAmount, setLastBonusAmount] = useState(0);
   const comboRef = useRef(0);
   const isProcessingRef = useRef(false);
-  
-  const BONUS_THRESHOLD = 18; // Every 18 non-target matches triggers bonus
-  const BONUS_GEMS_PER_TARGET = 1; // Add 1 gem to each target type
 
   const checkMatches = useCallback((currentBoard: (Gem | null)[][]) => {
     const matchSet = new Set<string>();
