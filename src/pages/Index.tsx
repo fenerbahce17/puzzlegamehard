@@ -35,9 +35,9 @@ export default function Index() {
     <div className="min-h-screen p-6 flex flex-col items-center justify-center bg-gradient-to-br from-background via-background to-primary/5">
       <div className="max-w-6xl w-full">
         <div className="text-center mb-12 space-y-4">
-          <div className="inline-block animate-bounce">
-            <h1 className="text-7xl font-bold mb-2 bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent drop-shadow-2xl">
-              💎 Gem Quest
+          <div className="inline-block">
+            <h1 className="text-7xl font-bold mb-2 bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent drop-shadow-2xl tracking-tight">
+              🌍 City Match 3 Quest
             </h1>
           </div>
           <p className="text-2xl font-semibold text-foreground/90">
