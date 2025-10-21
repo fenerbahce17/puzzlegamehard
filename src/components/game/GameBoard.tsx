@@ -17,15 +17,15 @@ interface GameBoardProps {
 
 const BOARD_SIZE = 8;
 const GEM_TYPES: GemType[] = ['red', 'blue', 'green', 'yellow', 'purple', 'orange', 'pink', 'cyan', 'lime', 'magenta'];
-const BONUS_THRESHOLD = 18; // Bonus için gereken hedef dışı taş sayısı
+const BONUS_THRESHOLD = 22; // Bonus için gereken hedef dışı taş sayısı (dengeli)
 const BONUS_GEMS_PER_TARGET = 1; // Her bonus aktivasyonunda hedefe eklenen taş sayısı
 
 const createRandomGem = (row: number, col: number, targetTypes: GemType[] = [], favorTargets: boolean = false): Gem => {
   let gemType: GemType;
   
   // If we should favor target gems and we have target types
-  if (favorTargets && targetTypes.length > 0 && Math.random() < 0.65) {
-    // 65% chance to create a target gem when favorTargets is true
+  if (favorTargets && targetTypes.length > 0 && Math.random() < 0.42) {
+    // 42% chance to create a target gem when favorTargets is true (dengeli)
     gemType = targetTypes[Math.floor(Math.random() * targetTypes.length)];
   } else {
     // Otherwise random gem
@@ -40,8 +40,8 @@ const createRandomGem = (row: number, col: number, targetTypes: GemType[] = [], 
     isNew: true,
   };
   
-  // 5% chance to create a power-up on match of 4+
-  if (Math.random() < 0.05) {
+  // 3% chance to create a power-up (azaltıldı)
+  if (Math.random() < 0.03) {
     const powerUps: PowerUpType[] = ['bomb', 'horizontal', 'vertical', 'rainbow'];
     gem.powerUp = powerUps[Math.floor(Math.random() * powerUps.length)];
   }
@@ -55,7 +55,7 @@ const initializeBoard = (targetTypes: GemType[] = []): (Gem | null)[][] => {
   const maxAttempts = 100;
   
   while (attempts < maxAttempts) {
-    // Create initial board with higher concentration of target gems
+    // Create initial board with balanced concentration of target gems
     for (let row = 0; row < BOARD_SIZE; row++) {
       board[row] = [];
       for (let col = 0; col < BOARD_SIZE; col++) {
@@ -64,8 +64,8 @@ const initializeBoard = (targetTypes: GemType[] = []): (Gem | null)[][] => {
         
         // Ensure no initial matches
         do {
-          // 50% of gems should be target gems initially for better odds
-          const favorTargets = targetTypes.length > 0 && Math.random() < 0.5;
+          // 35% of gems should be target gems initially (dengeli)
+          const favorTargets = targetTypes.length > 0 && Math.random() < 0.35;
           gem = createRandomGem(row, col, targetTypes, favorTargets);
           safetyCount++;
         } while (
@@ -78,9 +78,11 @@ const initializeBoard = (targetTypes: GemType[] = []): (Gem | null)[][] => {
       }
     }
     
-    // Verify board quality
+    // Verify board quality - daha esnek kurallar
     const hasValidMoves = hasPossibleMoves(board);
-    const hasEnoughTargetGems = countTargetGems(board, targetTypes) >= Math.min(targetTypes.length * 8, 20);
+    const targetGemCount = countTargetGems(board, targetTypes);
+    const minTargetGems = Math.min(targetTypes.length * 6, 15); // Daha az hedef taş gerekli
+    const hasEnoughTargetGems = targetGemCount >= minTargetGems;
     const hasTargetMatches = hasTargetGemMatches(board, targetTypes);
     
     if (hasValidMoves && hasEnoughTargetGems && hasTargetMatches) {
@@ -374,7 +376,7 @@ export const GameBoard = ({ onScoreChange, onMoveUsed, onGemsCollected, onCombo,
         }
       }
       
-      // Drop new gems with higher chance of target gems
+      // Drop new gems with balanced chance of target gems
       for (let row = emptySpaces - 1; row >= 0; row--) {
         newBoard[row][col] = createRandomGem(row, col, targetGemTypes, true);
       }
